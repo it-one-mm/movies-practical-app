@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { thisExpression } from "@babel/types";
 
 class Like extends Component {
   render() {
