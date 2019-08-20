@@ -5,13 +5,15 @@ import { paginate } from "../utils/paginate";
 import ListGroup from "./common/listGroup";
 import { getGenres } from "../services/fakeGenreService";
 import MoviesTable from "./moviesTable";
+import _ from "lodash";
 
 class Movies extends Component {
   state = {
     movies: [],
     genres: [],
     currentPage: 1,
-    pageSize: 4
+    pageSize: 4,
+    sortColumn: { path: "title", order: "asc" }
   };
 
   componentDidMount() {
@@ -41,7 +43,14 @@ class Movies extends Component {
   };
 
   handleSort = path => {
-    console.log(path);
+    const sortColumn = { ...this.state.sortColumn };
+    if (sortColumn.path === path) {
+      sortColumn.order = sortColumn.order === "asc" ? "desc" : "asc";
+    } else {
+      sortColumn.path = path;
+      sortColumn.order = "asc";
+    }
+    this.setState({ sortColumn });
   };
 
   render() {
@@ -50,6 +59,7 @@ class Movies extends Component {
     const {
       pageSize,
       currentPage,
+      sortColumn,
       selectedGenre,
       movies: allMovies
     } = this.state;
@@ -61,7 +71,13 @@ class Movies extends Component {
         ? allMovies.filter(movie => movie.genre._id === selectedGenre._id)
         : allMovies;
 
-    const movies = paginate(filteredMovies, currentPage, pageSize);
+    const sort = _.orderBy(
+      filteredMovies,
+      [sortColumn.path],
+      [sortColumn.order]
+    );
+
+    const movies = paginate(sort, currentPage, pageSize);
 
     return (
       <React.Fragment>
